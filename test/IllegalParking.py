@@ -1,5 +1,7 @@
 import cv2
 import torch
+import json
+import time
 import numpy as np
 from ultralytics import YOLO
 from sort.sort import Sort  # SORT目标跟踪
@@ -63,6 +65,18 @@ while cap.isOpened():
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
                 cv2.putText(frame, "Illegal Parking!", (x1, y1 - 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  # 获取当前时间戳
+                illegal_parking_data = {
+                    "object_id": obj_id,
+                    "stay_time": round(stay_time, 1),
+                    "threshold": parking_threshold, # 违停阈值
+                    "timestamp": timestamp, # 时间戳，当前时间
+                    "bounding_box": {"x1": x1, "y1": y1, "x2": x2, "y2": y2} # 目标的矩形框位置
+                }
+                with open("IllegalParkingLog.json", "w") as f:
+                    json.dump(illegal_parking_data, f, indent=4)
+
+                print("最新违停数据已更新：", illegal_parking_data)
 
     # 显示处理后的视频流
     cv2.imshow("Non-Motor Vehicle Tracker", frame)
