@@ -3,6 +3,7 @@ import torch
 import json
 import time
 import numpy as np
+import os
 from ultralytics import YOLO
 from sort.sort import Sort  # SORT目标跟踪
 
@@ -17,10 +18,23 @@ cap = cv2.VideoCapture(0)
 parking_threshold = 2  # 停留时间阈值（秒）
 track_history = {}  # 记录目标的停留时间
 
+# **尝试加载已有的 JSON 文件**
+json_file = "IllegalParkingLog.json"
+if os.path.exists(json_file):
+    with open(json_file, "r") as f:
+        try:
+            parking_data = json.load(f)  # 读取已有数据
+        except json.JSONDecodeError:
+            parking_data = {}  # 解析失败时，创建空字典
+else:
+    parking_data = {}  # 文件不存在时，创建空字典
+
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
+
+    active_ids = set()
 
     # YOLOv8 目标检测
     results = model(frame)
@@ -41,9 +55,11 @@ while cap.isOpened():
         detections = np.array(detections)
         tracked_objects = tracker.update(detections)
 
+        active_ids = set()  # 记录当前帧仍可见的车辆 ID
+
         for obj in tracked_objects:
             x1, y1, x2, y2, obj_id = map(int, obj)
-            center_x, center_y = (x1 + x2) // 2, (y1 + y2) // 2
+            active_ids.add(obj_id)  # 记录当前帧的 ID
 
             # 记录目标出现的时间
             if obj_id in track_history:
@@ -56,8 +72,7 @@ while cap.isOpened():
 
             # **绘制目标框**
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            # 绘制目标的绿色边框
-            cv2.putText(frame, f"ID: {obj_id} Time: {stay_time:.1f}s",# 显示目标的 ID 以及停留时间
+            cv2.putText(frame, f"ID: {obj_id} Time: {stay_time:.1f}s",
                         (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             # **违停检测（超过阈值标红）**
@@ -65,18 +80,31 @@ while cap.isOpened():
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
                 cv2.putText(frame, "Illegal Parking!", (x1, y1 - 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
                 timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  # 获取当前时间戳
-                illegal_parking_data = {
+
+                # **更新 JSON 记录**
+                parking_data[str(obj_id)] = {
                     "object_id": obj_id,
                     "stay_time": round(stay_time, 1),
-                    "threshold": parking_threshold, # 违停阈值
-                    "timestamp": timestamp, # 时间戳，当前时间
-                    "bounding_box": {"x1": x1, "y1": y1, "x2": x2, "y2": y2} # 目标的矩形框位置
+                    "threshold": parking_threshold,
+                    "timestamp": timestamp,
+                    "bounding_box": {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
+                    "status": "active"  # 车辆仍然在场
                 }
-                with open("IllegalParkingLog.json", "w") as f:
-                    json.dump(illegal_parking_data, f, indent=4)
 
-                print("最新违停数据已更新：", illegal_parking_data)
+                print(f"车辆 {obj_id} 违停数据更新：", parking_data[str(obj_id)])
+
+    # **遍历 JSON 数据，更新状态**
+    for obj_id in parking_data.keys():
+        obj_id_int = int(obj_id)
+        if obj_id_int not in active_ids:
+            parking_data[obj_id]["status"] = "left"  # 标记为离开
+            print(f"车辆 {obj_id} 已离开，但数据保留")
+
+    # **写入 JSON 文件**
+    with open(json_file, "w") as f:
+        json.dump(parking_data, f, indent=4)
 
     # 显示处理后的视频流
     cv2.imshow("Non-Motor Vehicle Tracker", frame)
