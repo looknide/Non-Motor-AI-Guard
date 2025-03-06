@@ -14,7 +14,7 @@ tracker = Sort()  # 初始化SORT跟踪器
 cap = cv2.VideoCapture(0)
 
 # 违停检测参数
-parking_threshold = 5  # 停留时间阈值（秒）
+parking_threshold = 2  # 停留时间阈值（秒）
 track_history = {}  # 记录目标的停留时间
 
 while cap.isOpened():
