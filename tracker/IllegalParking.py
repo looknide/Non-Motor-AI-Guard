@@ -1,17 +1,35 @@
 import cv2
 import json
 import time
+import fcntl
 import numpy as np
 import os
 from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
 
+# # 创建日志目录和文件
+# os.makedirs("logs", exist_ok=True)
+# EVENT_LOG = "logs/events.log"
+# # 写日志的函数，文件锁（防止并发冲突）
+# def log_event(event_type, obj_id, data=None):
+#     timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+#     with open(EVENT_LOG, "a") as f:
+#         fcntl.flock(f, fcntl.LOCK_EX)  # 加锁
+#         try:
+#             event = {
+#                 "timestamp": timestamp,
+#                 "event_type": event_type,
+#                 "obj_id": obj_id,
+#                 "data": data
+#             }
+#             f.write(json.dumps(event) + "\n")
+#         finally:
+#             fcntl.flock(f, fcntl.LOCK_UN)  # 解锁
+
 # 加载模型
 model = YOLO("models/yolov8n.pt")
-
 # 初始化DeepSORT
 deepsort = DeepSort(max_age=30, n_init=3, nn_budget=100) #max_age=30：当目标连续 30 帧未被检测到时，会被认为丢失；n_init=3：目标需要连续 3 帧检测到后才确认跟踪；nn_budget=100：保留的外观特征（用于匹配）的最大数量。
-
 
 
 # 打开摄像头
@@ -24,7 +42,7 @@ if not cap.isOpened():
 parking_threshold = 2  # 停留时间阈值（秒）
 track_history = {}  # 记录目标的停留时间
 
-# 加载 JSON 文件
+# 加载现有JSON文件
 json_file = "IllegalParkingLog.json"
 parking_data = {}
 if os.path.exists(json_file):
@@ -33,6 +51,7 @@ if os.path.exists(json_file):
             parking_data = json.load(f)
     except json.JSONDecodeError:
         parking_data = {}
+
 
 while cap.isOpened(): # 循环读取摄像头视频帧
     ret, frame = cap.read()
@@ -107,10 +126,20 @@ while cap.isOpened(): # 循环读取摄像头视频帧
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
                 cv2.putText(frame, "Illegal Parking!", (x1, y1 - 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                # # 检测到违停时添加新记录
+                timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())  # 获取当前时间戳
+                if str(obj_id) not in parking_data:
+                    parking_data[str(obj_id)] = {
+                        "first_detected": timestamp,
+                        "last_updated": timestamp,
+                        "status": "parking"
+                    }
+                else:
+                    parking_data[str(obj_id)]["last_updated"] = timestamp
+                    parking_data[str(obj_id)]["status"] = "parking"
 
-                timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  # 获取当前时间戳
 
-    # 更新 JSON 数据
+    # 标记已离开的违停车辆。
     for obj_id in list(parking_data.keys()):
         if int(obj_id) not in active_ids:
             parking_data[obj_id]["status"] = "left"
