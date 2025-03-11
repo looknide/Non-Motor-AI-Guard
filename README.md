@@ -1,9 +1,10 @@
 # None Motor AI Guard
-1. 学习visual language model，查找API搭到OpenCV；
-辅助前端
-2. 查找YOLOv8的非机动车识别模型；
-   创建github库。
-3. 学习Restful API、fastAPI；
-   Python逻辑判断
-4. 学习Restful API，vue，React（运用cloud3.7写前端代码）；
-   项目书+PPT
+- [x] 学习 Visual Language Model，查找 API 并集成到 OpenCV；
+- [ ] 辅助前端开发；
+- [x] 查找 YOLOv8 的非机动车识别模型；
+- [x] 创建 GitHub 仓库。
+- [ ] 学习 Restful API 和 FastAPI；
+- [ ] 学习 Python 逻辑判断；
+- [ ] 学习 Restful API、Vue 和 React（使用 Cloud3.7 编写前端代码）；
+- [ ] 准备项目书；
+- [ ] 准备 PPT。
