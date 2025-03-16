@@ -1,0 +1,8 @@
+{"timestamp": "2025-03-16 11:14:08", "event_type": "parking", "obj_id": 1, "data": {"image_path": "pictures/2025-03-16_11-14-08_id_1.jpg", "first_detected": "2025-03-16_11-14-08"}}
+{"timestamp": "2025-03-16 11:14:22", "event_type": "left", "obj_id": 1, "data": {"first_detected": "2025-03-16_11-14-08", "image_path": "pictures/2025-03-16_11-14-08_id_1.jpg"}}
+{"timestamp": "2025-03-16 11:14:25", "event_type": "id_change", "obj_id": 2, "data": {"new_id": 3, "iou": 0.6557237353671137}}
+{"timestamp": "2025-03-16 11:14:28", "event_type": "parking", "obj_id": 3, "data": {"image_path": "pictures/2025-03-16_11-14-28_id_3.jpg", "first_detected": "2025-03-16_11-14-28"}}
+{"timestamp": "2025-03-16 11:14:38", "event_type": "left", "obj_id": 3, "data": {"first_detected": "2025-03-16_11-14-28", "image_path": "pictures/2025-03-16_11-14-28_id_3.jpg"}}
+{"timestamp": "2025-03-16 11:14:55", "event_type": "id_change", "obj_id": 4, "data": {"new_id": 5, "iou": 0.7664827902222379}}
+{"timestamp": "2025-03-16 11:14:59", "event_type": "parking", "obj_id": 8, "data": {"image_path": "pictures/2025-03-16_11-14-59_id_8.jpg", "first_detected": "2025-03-16_11-14-59"}}
+{"timestamp": "2025-03-16 11:15:02", "event_type": "id_change", "obj_id": 5, "data": {"new_id": 8, "iou": 0.534656777610113}}
