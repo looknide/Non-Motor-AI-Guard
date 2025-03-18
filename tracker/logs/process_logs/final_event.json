@@ -1,0 +1,20 @@
+[
+    {
+        "obj_id": 3,
+        "first_detected": "2025-03-18_18-06-13",
+        "image_path": "pictures/2025-03-18_18-06-13_id_3.jpg",
+        "left_time": null
+    },
+    {
+        "obj_id": 1,
+        "first_detected": "2025-03-18_18-11-28",
+        "image_path": "pictures/2025-03-18_18-11-28_id_1.jpg",
+        "left_time": null
+    },
+    {
+        "obj_id": 7,
+        "first_detected": "2025-03-18_18-11-33",
+        "image_path": "pictures/2025-03-18_18-11-33_id_7.jpg",
+        "left_time": null
+    }
+]
