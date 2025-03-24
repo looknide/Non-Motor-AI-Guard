@@ -8,6 +8,7 @@ import numpy as np
 import os
 from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
+from tracker.process_logs import process_logs
 
 # 创建日志目录和文件
 os.makedirs("logs", exist_ok=True)
@@ -157,6 +158,7 @@ while cap.isOpened():
                     })
                     current_parking[obj_id]["image_saved"] = True
 
+
                 # 绘制红色警告框
                 cv2.rectangle(frame, (current_bbox[0], current_bbox[1]),
                               (current_bbox[2], current_bbox[3]), (0, 0, 255), 2)
@@ -164,6 +166,7 @@ while cap.isOpened():
                             (current_bbox[0], current_bbox[1] - 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
+                process_logs("logs/events.log","logs/process_logs")
     # -------------------------- 处理离开车辆 --------------------------
     left_ids = [obj_id for obj_id in current_parking if obj_id not in active_ids]
     for obj_id in left_ids:

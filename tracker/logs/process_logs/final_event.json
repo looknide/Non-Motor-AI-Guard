@@ -1,20 +1,14 @@
 [
     {
-        "obj_id": 3,
-        "first_detected": "2025-03-18_18-06-13",
-        "image_path": "pictures/2025-03-18_18-06-13_id_3.jpg",
-        "left_time": null
+        "obj_id": 2,
+        "first_detected": "2025-03-24_10-14-56",
+        "image_path": "pictures/2025-03-24_10-14-56_id_1.jpg",
+        "left_time": "2025-03-24_10-14-56"
     },
     {
-        "obj_id": 1,
-        "first_detected": "2025-03-18_18-11-28",
-        "image_path": "pictures/2025-03-18_18-11-28_id_1.jpg",
-        "left_time": null
-    },
-    {
-        "obj_id": 7,
-        "first_detected": "2025-03-18_18-11-33",
-        "image_path": "pictures/2025-03-18_18-11-33_id_7.jpg",
+        "obj_id": 4,
+        "first_detected": "2025-03-24_10-15-20",
+        "image_path": "pictures/2025-03-24_10-15-20_id_4.jpg",
         "left_time": null
     }
 ]
