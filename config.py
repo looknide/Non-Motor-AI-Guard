@@ -19,5 +19,6 @@ MIN_PARKING_DURATION = 5  # 秒 最小停车持续时间
 DEEPSORT_CONFIG = {
     "max_age": 60,
     "n_init": 5,
-    "nn_budget": 200
+    "nn_budget": 200,
+    "max_iou_distance": 0.7
 }
