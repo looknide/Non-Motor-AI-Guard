@@ -48,6 +48,5 @@ tqdm==4.67.1
 triton==3.2.0
 typing_extensions==4.13.0
 tzdata==2025.2
--e git+https://github.com/looknide/Non-Motor-AI-Guard.git@9dcea1c59b90d56d15b75aced5caa72c96d0b4d9#egg=ultralytics
 ultralytics-thop==2.0.14
 urllib3==2.3.0
