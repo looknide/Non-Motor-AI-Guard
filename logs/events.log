@@ -1,1 +1,2 @@
 {"timestamp": "2025-04-15 17:01:39", "event_type": "parking", "obj_id": 13, "data": {"duration": 5.153930902481079, "image_path": "/home/qiu/project/Tracker/pictures/violation_13_1744707699.jpg"}}
+{"timestamp": "2025-04-15 17:16:01", "event_type": "parking", "obj_id": 9, "data": {"duration": 5.017851114273071, "image_path": "/home/qiu/project/Tracker/pictures/violation_9_1744708561.jpg"}}
