@@ -33,4 +33,4 @@ def run_algorithm():
     cap.release()
     cv2.destroyAllWindows()
 
-run_algorithm()
+# run_algorithm()

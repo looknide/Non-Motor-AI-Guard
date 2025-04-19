@@ -1,2 +1,6 @@
-{"timestamp": "2025-04-15 17:01:39", "event_type": "parking", "obj_id": 13, "data": {"duration": 5.153930902481079, "image_path": "/home/qiu/project/Tracker/pictures/violation_13_1744707699.jpg"}}
-{"timestamp": "2025-04-15 17:16:01", "event_type": "parking", "obj_id": 9, "data": {"duration": 5.017851114273071, "image_path": "/home/qiu/project/Tracker/pictures/violation_9_1744708561.jpg"}}
+{"timestamp": "2025-04-17 22:11:22", "event_type": "parking", "obj_id": 2, "data": {"image_path": "pictures/2025-04-17_22-11-22_id_2.jpg", "first_detected": "2025-04-17_22-11-12"}}
+{"timestamp": "2025-04-17 22:39:59", "event_type": "parking", "obj_id": 2, "data": {"image_path": "pictures/2025-04-17_22-39-59_id_2.jpg", "first_detected": "2025-04-17_22-39-50"}}
+{"timestamp": "2025-04-17 22:41:04", "event_type": "parking", "obj_id": 11, "data": {"image_path": "pictures/2025-04-17_22-41-04_id_11.jpg", "first_detected": "2025-04-17_22-40-54"}}
+{"timestamp": "2025-04-17 22:41:55", "event_type": "parking", "obj_id": 7, "data": {"image_path": "pictures/2025-04-17_22-41-55_id_7.jpg", "first_detected": "2025-04-17_22-41-46"}}
+{"timestamp": "2025-04-17 22:44:39", "event_type": "left", "obj_id": 5, "data": {"first_detected": "2025-04-17_22-44-32", "image_path": "pictures/2025-04-17_22-44-39_id_5.jpg"}}
+{"timestamp": "2025-04-17 22:44:45", "event_type": "parking", "obj_id": 6, "data": {"image_path": "pictures/2025-04-17_22-44-45_id_6.jpg", "first_detected": "2025-04-17_22-44-36"}}
