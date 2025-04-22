@@ -1,17 +1,15 @@
-# utils/logger.py
-# 日志管理（写入、合并）
 import json
-import time
-import fcntl
 import os
-from config import LOG_DIR
 from datetime import datetime
 
-EVENT_LOG = os.path.join(LOG_DIR, "events.log")
+BASE_DIR = os.path.dirname(os.path.abspath(os.path.join(os.path.dirname(__file__), "../logs")))  # 项目根目录
+if not os.path.exists(BASE_DIR):  # 如果目录不存在，创建它
+    os.makedirs(BASE_DIR)
+EVENT_LOG = os.path.join(BASE_DIR, "events.log")
+# 创建日志目录
+os.makedirs(BASE_DIR, exist_ok=True)
 
 def log_event(event_type, obj_id, data=None):
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    log_file_path = os.path.join("logs", "events.log")
     event = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "event_type": event_type,
@@ -22,6 +20,5 @@ def log_event(event_type, obj_id, data=None):
     event_json = json.dumps(event, ensure_ascii=False)
     print(f"Logging event: {event_json}")
 
-    with open(log_file_path, "a", encoding="utf-8") as f:
+    with open(EVENT_LOG, "a", encoding="utf-8") as f:
         f.write(event_json + "\n")
-

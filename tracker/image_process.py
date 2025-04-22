@@ -12,7 +12,7 @@ class image_process:
         """初始化截图保存目录"""
         # 图片保存目录在 tracker 同级目录下的 pictures 文件夹
         self.screenshot_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../pictures"))
-        if not os.path.exists(self.screenshot_dir):  # 如果目录不存在，创建它
+        if not os.path.exists(self.screenshot_dir):
             os.makedirs(self.screenshot_dir)
 
     @staticmethod

@@ -91,5 +91,5 @@ class FrameProcessor:
                 "first_detected": first_detected,
                 "image_path": f"pictures/{timestamp}_id_{obj_id}.jpg"
             })
-            # 从当前停车记录中移除该对象
+            # # 从当前停车记录中移除该对象
             del self.current_parking[obj_id]
