@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非机动车智能监控系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #0A192F;
+            --secondary-bg: #112240;
+            --accent-color: #64FFDA;
+            --text-primary: #E6F1FF;
+            --text-secondary: #8892B0;
+            --hover-gradient: linear-gradient(90deg, #64FFDA 0%, #4ECCA3 100%);
+            --button-bg: #1D4ED8;
+            --button-hover: #1E40AF;
+            --chart-line: #64FFDA;
+            --chart-fill: rgba(100, 255, 218, 0.1);
+            --grid-line: rgba(136, 146, 176, 0.1);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --transition-speed: 0.3s;
+            --title-gradient: linear-gradient(45deg, #64FFDA, #4ECCA3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(17, 34, 64, 0.8) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(10, 25, 47, 0.8) 0%, transparent 50%);
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .page-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1;
+            width: 100%;
+            pointer-events: none;
+        }
+        
+        .main-title {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: var(--title-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+        
+        .main-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            opacity: 0.9;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .subtitle-item {
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .subtitle-item:not(:last-child)::after {
+            content: "·";
+            position: absolute;
+            right: -15px;
+            color: var(--accent-color);
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: rgba(17, 34, 64, 0.8);
+            padding: 30px 0;
+            border-right: 1px solid rgba(100, 255, 218, 0.2);
+            display: flex;
+            flex-direction: column;
+            transition: all var(--transition-speed) ease;
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 0 100%);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+        }
+        
+        .sidebar-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+        
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 20px;
+            text-align: left;
+            background: var(--button-bg);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .nav-button:hover {
+            background: var(--hover-gradient);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 0 30px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .dashboard {
+            display: flex;
+            flex: 1;
+            gap: 30px;
+        }
+        
+        .content-container {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .camera-window {
+            background-color: rgba(17, 34, 64, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            height: 480px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .camera-feed {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .camera-placeholder {
+            font-size: 18px;
+            color: var(--accent-color);
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .camera-controls {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 25px;
+        }
+        
+        .camera-control-btn {
+            background: var(--button-bg);
+            border: none;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .camera-control-btn:hover {
+            background: var(--hover-gradient);
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 6px 16px rgba(100, 255, 218, 0.4);
+        }
+        
+        .chart {
+            background: rgba(17, 34, 64, 0.6);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            height: 320px;
+            overflow: hidden;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .chart-title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-shadow: 0 0 5px rgba(100, 255, 218, 0.5);
+            z-index: 5;
+            letter-spacing: 1px;
+        }
+
+        .data-summary {
+            background-color: rgba(17, 34, 64, 0.6);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--text-secondary);
+            text-align: right;
+            letter-spacing: 1px;
+        }
+
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .summary-item {
+            background: rgba(29, 78, 216, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .summary-item:hover {
+            background: var(--hover-gradient);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-shadow: 0 0 5px rgba(100, 255, 218, 0.5);
+        }
+
+        .summary-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                padding: 0 20px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .dashboard {
+                flex-direction: column;
+            }
+
+            .content-container {
+                margin-right: 0;
+            }
+
+            .data-summary {
+                min-height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: -240px;
+                height: 100vh;
+                z-index: 999;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main-content {
+                width: 100%;
+                padding: 0 15px;
+            }
+
+            .main-title {
+                font-size: 28px;
+            }
+
+            .camera-window {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 24px;
+            }
+
+            .main-subtitle {
+                font-size: 14px;
+            }
+
+            .camera-window {
+                height: 300px;
+                padding: 15px;
+            }
+
+            .chart {
+                height: 280px;
+                padding: 20px;
+            }
+
+            .summary-item {
+                padding: 15px;
+            }
+
+            .summary-value {
+                font-size: 24px;
+            }
+
+            .summary-label {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-title">
+            <h1 class="main-title">非机动车智能监控系统</h1>
+            <div class="main-subtitle">
+                <span class="subtitle-item">实时监控</span>
+                <span class="subtitle-item">数据分析</span>
+                <span class="subtitle-item">智能预警</span>
+            </div>
+        </div>
+
+        <button class="hamburger" id="menu-toggle"><i class="fas fa-bars"></i></button>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-title">NON-MOTOR AI GUARD</div>
+            <div class="sidebar-nav">
+                <button class="nav-button"><i class="fas fa-home"></i>首页</button>
+                <button class="nav-button"><i class="fas fa-chart-line"></i>详情页</button>
+                <button class="nav-button"><i class="fas fa-file-alt"></i>申请复核</button>
+                <button class="nav-button"><i class="fas fa-envelope"></i>联系开发商</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="dashboard">
+                <div class="content-container">
+                    <div class="camera-window">
+                        <div class="camera-feed">
+                            <div class="camera-placeholder">等待连接摄像头...</div>
+                        </div>
+                        <div class="camera-controls">
+                            <button class="camera-control-btn" id="connect-camera"><i class="fas fa-play"></i></button>
+                            <button class="camera-control-btn" id="capture-image"><i class="fas fa-camera"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="chart" id="violation-chart">
+                        <div class="chart-title">数据库记录数量实时曲线</div>
+                        <div class="loading">加载中...</div>
+                        <div class="chart-axis-y" id="chart-y-axis"></div>
+
+                        <svg class="chart-line" id="chart-svg" viewBox="0 0 600 300" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="enhancedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="var(--chart-line)" stop-opacity="0.8" />
+                                    <stop offset="100%" stop-color="var(--chart-line)" stop-opacity="0.1" />
+                                </linearGradient>
+
+                                <filter id="glow" width="300%" height="300%" x="-100%" y="-100%">
+                                    <feGaussianBlur stdDeviation="4" result="blur" />
+                                    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="glow" />
+                                    <feMerge>
+                                        <feMergeNode in="glow" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                            </defs>
+
+                            <g class="grid-lines"></g>
+                        </svg>
+
+                        <div class="chart-axis-x" id="chart-x-axis"></div>
+                    </div>
+                </div>
+
+                <div class="data-summary">
+                    <div class="summary-title">数据概况</div>
+                    <div class="summary-list">
+                        <div class="summary-item">
+                            <span class="summary-label">最新数据记录数</span>
+                            <span class="summary-value" id="latest-data-count">--</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">检测准确率</span>
+                            <span class="summary-value">95.3%</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">当前处理量</span>
+                            <span class="summary-value">42</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">平均处理时间</span>
+                            <span class="summary-value">24</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const MAX_DATA_POINTS = 12;
+        const UPDATE_INTERVAL = 5000;
+        let violationData = [];
+        let chartUpdateTimer = null;
+
+        async function fetchViolationData() {
+            try {
+                const response = await fetch('/get-violations');
+                if (!response.ok) throw new Error('HTTP error');
+
+                const result = await response.json();
+                if (result.status === 'success' && result.data) {
+                    violationData = result.data;
+                    updateLatestCount();
+                    return violationData;
+                } else {
+                    throw new Error(result.message || '获取数据失败');
+                }
+            } catch (error) {
+                console.error('获取数据失败:', error);
+                return generateMockData();
+            }
+        }
+
+        function generateMockData() {
+            const mockData = [];
+            const now = new Date();
+
+            for (let i = 11; i >= 0; i--) {
+                const time = new Date(now - i * 5000);
+                mockData.push({
+                    time: time.toTimeString().slice(0, 8),
+                    count: Math.floor(Math.random() * 30) + 10
+                });
+            }
+
+            return mockData;
+        }
+
+        function updateLatestCount() {
+            if (violationData.length > 0) {
+                const latestDataElement = document.getElementById('latest-data-count');
+                if (latestDataElement) {
+                    latestDataElement.textContent = violationData[violationData.length - 1].count;
+                }
+            }
+        }
+
+        function updateChart(data) {
+            const chartContainer = document.getElementById('violation-chart');
+            const chartSvg = document.getElementById('chart-svg');
+            const yAxis = document.getElementById('chart-y-axis');
+            const xAxis = document.getElementById('chart-x-axis');
+
+            const loadingElement = chartContainer.querySelector('.loading');
+            if (loadingElement) loadingElement.style.display = 'none';
+
+            if (!data || data.length === 0) return;
+
+            const counts = data.map(item => item.count);
+            const times = data.map(item => item.time);
+            const maxCount = Math.max(10, Math.ceil(Math.max(...counts) / 10) * 10);
+
+            // 更新Y轴
+            yAxis.innerHTML = '';
+            const ySteps = 5;
+            for (let i = ySteps; i >= 0; i--) {
+                const div = document.createElement('div');
+                div.textContent = Math.round(maxCount * i / ySteps);
+                yAxis.appendChild(div);
+            }
+
+            // 更新X轴
+            xAxis.innerHTML = '';
+            times.forEach(time => {
+                const div = document.createElement('div');
+                div.textContent = time;
+                xAxis.appendChild(div);
+            });
+
+            // 创建路径
+            const svgWidth = 600;
+            const svgHeight = 300;
+            const xStep = svgWidth / (data.length - 1 || 1);
+
+            let pathPoints = '';
+            let areaPoints = '';
+
+            data.forEach((item, index) => {
+                const x = index * xStep;
+                const y = svgHeight - (item.count / maxCount * svgHeight);
+
+                if (index === 0) {
+                    pathPoints += `M${x},${y} `;
+                    areaPoints += `M${x},${y} `;
+                } else {
+                    const prevX = (index - 1) * xStep;
+                    const prevY = svgHeight - (data[index - 1].count / maxCount * svgHeight);
+                    const cp1x = prevX + (x - prevX) / 3;
+                    const cp1y = prevY;
+                    const cp2x = prevX + 2 * (x - prevX) / 3;
+                    const cp2y = y;
+
+                    pathPoints += `C${cp1x},${cp1y} ${cp2x},${cp2y} ${x},${y} `;
+                    areaPoints += `C${cp1x},${cp1y} ${cp2x},${cp2y} ${x},${y} `;
+                }
+            });
+
+            areaPoints += `L${(data.length - 1) * xStep},${svgHeight} L0,${svgHeight} Z`;
+
+            // 清除旧路径
+            const oldPaths = chartSvg.querySelectorAll('path');
+            oldPaths.forEach(path => path.remove());
+
+            // 添加新路径
+            const areaPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            areaPath.setAttribute('d', areaPoints);
+            areaPath.setAttribute('fill', 'url(#enhancedGradient)');
+            areaPath.setAttribute('opacity', '0.7');
+
+            const linePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            linePath.setAttribute('d', pathPoints);
+            linePath.setAttribute('stroke', 'var(--chart-line)');
+            linePath.setAttribute('stroke-width', '3');
+            linePath.setAttribute('fill', 'none');
+            linePath.setAttribute('filter', 'url(#glow)');
+
+            chartSvg.appendChild(areaPath);
+            chartSvg.appendChild(linePath);
+        }
+
+        async function initViolationChart() {
+            const data = await fetchViolationData();
+            updateChart(data);
+
+            chartUpdateTimer = setInterval(async () => {
+                try {
+                    const response = await fetch('/get-latest-data');
+                    if (!response.ok) throw new Error('获取最新数据失败');
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        violationData.push({
+                            time: result.time,
+                            count: result.count
+                        });
+
+                        if (violationData.length > MAX_DATA_POINTS) {
+                            violationData.shift();
+                        }
+
+                        updateLatestCount();
+                        updateChart(violationData);
+                    }
+                } catch (error) {
+                    console.error('更新数据失败:', error);
+                    const lastCount = violationData[violationData.length - 1].count;
+                    const newCount = Math.max(0, lastCount + Math.floor(Math.random() * 6) - 2);
+                    const newTime = new Date().toTimeString().slice(0, 8);
+
+                    violationData.push({ time: newTime, count: newCount });
+                    if (violationData.length > MAX_DATA_POINTS) {
+                        violationData.shift();
+                    }
+
+                    updateLatestCount();
+                    updateChart(violationData);
+                }
+            }, UPDATE_INTERVAL);
+        }
+
+        function setupCameraButtons() {
+            const connectBtn = document.getElementById('connect-camera');
+            const captureBtn = document.getElementById('capture-image');
+            const cameraFeed = document.querySelector('.camera-feed');
+            const placeholder = document.querySelector('.camera-placeholder');
+            let stream = null;
+            let isConnected = false;
+
+            connectBtn.addEventListener('click', function() {
+                if (!isConnected) {
+                    placeholder.textContent = "正在连接摄像头...";
+
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(mediaStream => {
+                            stream = mediaStream;
+                            isConnected = true;
+
+                            const video = document.createElement('video');
+                            video.style.width = '100%';
+                            video.style.height = '100%';
+                            video.autoplay = true;
+                            video.srcObject = stream;
+
+                            cameraFeed.innerHTML = '';
+                            cameraFeed.appendChild(video);
+                            connectBtn.textContent = "⏸";
+                            captureBtn.disabled = false;
+                        })
+                        .catch(error => {
+                            console.error("访问摄像头失败:", error);
+                            placeholder.textContent = "无法访问摄像头，请检查权限设置";
+                        });
+                } else {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                        stream = null;
+                    }
+
+                    cameraFeed.innerHTML = '';
+                    cameraFeed.appendChild(placeholder);
+                    placeholder.textContent = "等待连接摄像头...";
+                    connectBtn.textContent = "▶";
+                    captureBtn.disabled = true;
+                    isConnected = false;
+                }
+            });
+
+            captureBtn.addEventListener('click', function() {
+                if (!isConnected || !stream) return;
+
+                try {
+                    const canvas = document.createElement('canvas');
+                    const video = cameraFeed.querySelector('video');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageUrl = canvas.toDataURL('image/png');
+
+                    const preview = document.createElement('img');
+                    preview.src = imageUrl;
+                    preview.style.maxWidth = '90%';
+                    preview.style.maxHeight = '90%';
+
+                    cameraFeed.innerHTML = '';
+                    cameraFeed.appendChild(preview);
+                } catch (error) {
+                    console.error("捕获图像失败:", error);
+                }
+            });
+        }
+
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+
+        window.onload = function() {
+            initViolationChart();
+            setupCameraButtons();
+        };
+    </script>
+</body>
+</html>

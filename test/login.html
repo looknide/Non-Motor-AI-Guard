@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-Motor AI Guard - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #003040 0%, #005060 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .background-icons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            z-index: 0;
+        }
+        
+        .background-icons .icon {
+            position: absolute;
+            stroke: #00a0a0;
+            stroke-width: 2px;
+            fill: none;
+        }
+        
+        .background-icons .icon:nth-child(1) {
+            width: 200px;
+            top: 25%;
+            left: 15%;
+        }
+        
+        .background-icons .icon:nth-child(2) {
+            width: 250px;
+            bottom: 15%;
+            right: 20%;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            z-index: 1;
+        }
+        
+        .logo {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .logo h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-box h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        .input-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #00a0a0 0%, #00e060 100%);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 2.5rem;
+            }
+            
+            .login-box {
+                padding: 30px;
+                max-width: 90%;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .notification.show {
+            opacity: 1;
+        }
+        
+        .notification.error {
+            background-color: rgba(255, 0, 0, 0.8);
+        }
+        
+        .notification.success {
+            background-color: rgba(0, 255, 0, 0.8);
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #00a0a0;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .register-form {
+            display: none;
+        }
+        
+        .register-form.show {
+            display: block;
+        }
+        
+        .back-to-login {
+            text-align: center;
+            margin-top: 20px;
+            color: #00a0a0;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-icons">
+        <svg class="icon" viewBox="0 0 100 100">
+            <path d="M30,70 Q50,50 70,70 T90,50 Q70,30 50,50 T30,30 Q10,50 30,70 Z" />
+            <circle cx="50" cy="50" r="20" />
+            <circle cx="50" cy="50" r="5" />
+        </svg>
+        <svg class="icon" viewBox="0 0 100 100">
+            <path d="M20,20 L80,20 L80,80 L20,80 Z" />
+            <circle cx="50" cy="50" r="20" />
+            <path d="M30,50 L70,50" />
+            <path d="M50,30 L50,70" />
+        </svg>
+    </div>
+
+    <div class="container">
+        <div class="logo">
+            <h1>NON-MOTOR AI GUARD</h1>
+            <p>基于智能视觉的非机动车违规停放监测系统</p>
+        </div>
+        
+        <div class="login-box">
+            <h2>WELCOME!</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>账号 ></label>
+                    <input type="text" id="username" name="username" placeholder="">
+                </div>
+                
+                <div class="input-group">
+                    <label>密码 ></label>
+                    <input type="password" id="password" name="password" placeholder="">
+                </div>
+                
+                <button type="submit" class="login-btn">登录</button>
+            </form>
+            
+            <div class="register-link" id="showRegister">没有账号？立即注册</div>
+        </div>
+        
+        <div class="login-box register-form" id="registerForm">
+            <h2>REGISTER</h2>
+            <form id="registerFormElement">
+                <div class="input-group">
+                    <label>账号 ></label>
+                    <input type="text" id="regUsername" name="username" placeholder="">
+                </div>
+                
+                <div class="input-group">
+                    <label>密码 ></label>
+                    <input type="password" id="regPassword" name="password" placeholder="">
+                </div>
+                
+                <button type="submit" class="login-btn">注册</button>
+            </form>
+            
+            <div class="back-to-login" id="backToLogin">返回登录</div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // 显示通知
+        function showNotification(message, type = 'error') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.className = 'notification';
+            }, 3000);
+        }
+
+        // 登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showNotification('登录成功', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/modified-ccode';
+                    }, 1000);
+                } else {
+                    showNotification(data.message || '登录失败');
+                }
+            })
+            .catch(error => {
+                showNotification('登录请求失败');
+            });
+        });
+
+        // 注册表单提交
+        document.getElementById('registerFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            
+            fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showNotification('注册成功', 'success');
+                    setTimeout(() => {
+                        document.getElementById('registerForm').classList.remove('show');
+                        document.getElementById('loginForm').parentElement.style.display = 'block';
+                    }, 1000);
+                } else {
+                    showNotification(data.message || '注册失败');
+                }
+            })
+            .catch(error => {
+                showNotification('注册请求失败');
+            });
+        });
+
+        // 切换显示注册表单
+        document.getElementById('showRegister').addEventListener('click', function() {
+            document.getElementById('loginForm').parentElement.style.display = 'none';
+            document.getElementById('registerForm').classList.add('show');
+        });
+
+        // 返回登录表单
+        document.getElementById('backToLogin').addEventListener('click', function() {
+            document.getElementById('registerForm').classList.remove('show');
+            document.getElementById('loginForm').parentElement.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
