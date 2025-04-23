@@ -8,3 +8,5 @@
 {"timestamp": "2025-04-22 17:50:09", "event_type": "left", "obj_id": 10, "data": {"first_detected": "2025-04-22_17-49-53", "image_path": "pictures/2025-04-22_17-50-09_id_10.jpg"}}
 {"timestamp": "2025-04-22 17:51:31", "event_type": "parking", "obj_id": 7, "data": {"image_path": "pictures/2025-04-22_17-51-31_id_7.jpg", "first_detected": "2025-04-22_17-51-22"}}
 {"timestamp": "2025-04-22 17:51:38", "event_type": "left", "obj_id": 7, "data": {"first_detected": "2025-04-22_17-51-22", "image_path": "pictures/2025-04-22_17-51-38_id_7.jpg"}}
+{"timestamp": "2025-04-23 18:05:44", "event_type": "parking", "obj_id": 4, "data": {"image_path": "pictures/2025-04-23_18-05-44_id_4.jpg", "first_detected": "2025-04-23_18-05-35"}}
+{"timestamp": "2025-04-23 18:05:48", "event_type": "left", "obj_id": 4, "data": {"first_detected": "2025-04-23_18-05-35", "image_path": "pictures/2025-04-23_18-05-48_id_4.jpg"}}
