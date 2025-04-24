@@ -1,20 +1,26 @@
 import sys
 import os
+
+import cv2
+from starlette.responses import HTMLResponse
+from starlette.websockets import WebSocket
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import threading
 import time
 import logging
 from pathlib import Path
 import signal
+import numpy as np
 from datetime import datetime
-from fastapi import Query
+from run_algorithm import frame_queue
 
 from run_algorithm import run_algorithm
 
 # 添加项目根目录到Python路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -24,6 +30,8 @@ from concurrent.futures import ThreadPoolExecutor
 from backend.services.log_processor import start_log_processor, init_database
 from backend.services.VLM import start_monitoring, verify_api_key
 from backend.database.models import NonMotorVehicle, db
+
+app = FastAPI()
 
 app = FastAPI(
     title="非机动车违停监控系统API",
@@ -59,105 +67,36 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PICTURES_DIR = PROJECT_ROOT / "pictures"
 app.mount("/static/pictures", StaticFiles(directory=str(PICTURES_DIR)), name="pictures")
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
-# app.mount("/frontend", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
+app.mount("/frontend", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
 app.mount("/static/pictures", StaticFiles(directory=str(PICTURES_DIR)), name="pictures")
 
 # uvicorn main:app --port 63342 --reload
-@app.get("/api/updates") # 数据更新API
-async def get_updates(last_update: datetime=Query(...,description="上次更新的时间戳")):
-    try:
-        new_data=NonMotorVehicle.select().where(
-            NonMotorVehicle.update_time>last_update
-        )
-        return [
-            NonMotorVehicleModel(
-                track_id=vehicle.track_id,
-                image_path=vehicle.image_path,
-                is_illegal=vehicle.is_illegal,
-                is_left=vehicle.is_left
-            ) for vehicle in new_data
-        ]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# 获取所有非机动车记录API
-@app.get("/api/vehicles", response_model=List[NonMotorVehicleModel], tags=["非机动车"])
-async def get_all_vehicles():
-    """
-    返回:List[NonMotorVehicleModel]: 所有非机动车记录列表
-    """
-    try:
-        # 确保数据库连接
-        if db.is_closed():
-            db.connect()
-        # 查询所有记录
-        vehicles = NonMotorVehicle.select()
-        return [
-            NonMotorVehicleModel(
-                track_id=vehicle.track_id,
-                image_path=vehicle.image_path,
-                is_illegal=vehicle.is_illegal,
-                is_left=vehicle.is_left
-            )
-            for vehicle in vehicles
-        ]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"数据库查询错误: {str(e)}")
-# 根据ID获取特定非机动车记录API
-@app.get("/api/vehicles/{track_id}", response_model=NonMotorVehicleModel, tags=["非机动车"])
-async def get_vehicle_by_id(track_id: int):
-    """
-    返回:NonMotorVehicleModel: 非机动车记录详情
-    """
-    try:
-        if db.is_closed():
-            db.connect()
-
-        vehicle = NonMotorVehicle.get_or_none(NonMotorVehicle.track_id == track_id)
-        if vehicle is None:
-            raise HTTPException(status_code=404, detail=f"ID为{track_id}的记录不存在")
-
-        return NonMotorVehicleModel(
-            track_id=vehicle.track_id,
-            image_path=vehicle.image_path,
-            is_illegal=vehicle.is_illegal,
-            is_left=vehicle.is_left
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"数据库查询错误: {str(e)}")
-
-
-@app.get("/api/violations", response_model=List[NonMotorVehicleModel], tags=["违停记录"])
-async def get_violations():
-    """
-    返回:List[NonMotorVehicleModel]: 所有违停记录列表
-    """
-    try:
-        if db.is_closed():
-            db.connect()
-
-        vehicles = NonMotorVehicle.select().where(NonMotorVehicle.is_illegal == True)
-        return [
-            NonMotorVehicleModel(
-                track_id=vehicle.track_id,
-                image_path=vehicle.image_path,
-                is_illegal=vehicle.is_illegal,
-                is_left=vehicle.is_left
-            )
-            for vehicle in vehicles
-        ]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"数据库查询错误: {str(e)}")
-
 @app.get("/")
-# 添加根路径重定向到前端页面
-async def redirect_to_frontend():
-    """重定向根路径到前端页面"""
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/frontend/index.html")
+async def get():
+    index_path = FRONTEND_DIR / "index.html"
+    if not index_path.exists():
+        raise HTTPException(status_code=404, detail="index.html 不存在")
+    return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    print("WebSocket 请求接收中...")
+    await websocket.accept()
+    print("WebSocket 连接已建立")
+    while True:
+        try:
+            data = await websocket.receive_bytes()
+            # print(f"收到视频帧，大小: {len(data)} 字节")
+            nparr = np.frombuffer(data, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+            if frame_queue.full():
+                frame_queue.get()  # 丢掉旧帧
+            frame_queue.put(frame)
+
+        except Exception as e:
+            print(f"WebSocket接收错误: {e}，断开连接")
+            break
 
 # 配置日志
 logging.basicConfig(

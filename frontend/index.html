@@ -1,12 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>摄像头画面</title>
-    <link rel="stylesheet" href="static/style.css">
-</head>
-<body>
-    <h1>实时摄像头画面</h1>
-    <img src="/video_feed" width="640" height="480">
-</body>
-</html>
+<!-- frontend/index.html -->
+<video id="video" autoplay></video>
+<script>
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+        document.getElementById('video').srcObject = stream;
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const ws = new WebSocket("ws://localhost:8085/ws");
+        ws.onopen = () => {
+            console.log("WebSocket 连接已建立");
+        };
+
+        ws.onerror = (error) => {
+            console.log("WebSocket 错误:", error);
+        };
+
+        ws.onclose = (event) => {
+            console.log("WebSocket 连接关闭:", event);
+        };
+
+        setInterval(() => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
+            canvas.toBlob(blob => {
+                if (blob) {
+                    // console.log("发送视频帧，大小:", blob.size); // 打印发送的 blob 大小
+                    ws.send(blob);
+                }
+            }, 'image/jpeg');
+        }, 100);// 每 100ms 一帧
+    });
+</script>
