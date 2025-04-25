@@ -1,8 +1,6 @@
 import sys
 import os
-import asyncio
 import cv2
-from starlette.responses import HTMLResponse
 import asyncio
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -20,16 +18,14 @@ from run_algorithm import run_algorithm
 # 添加项目根目录到Python路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI, HTTPException,WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
-from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor
 from backend.services.log_processor import start_log_processor, init_database
 from backend.services.VLM import start_monitoring, verify_api_key
-from backend.database.models import NonMotorVehicle, db
 
 app = FastAPI()
 

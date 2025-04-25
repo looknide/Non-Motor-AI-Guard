@@ -462,7 +462,7 @@
             document.getElementById('video').srcObject = stream;
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-            const ws = new WebSocket("ws://localhost:8085/ws");
+            const ws = new WebSocket("ws://localhost:8085/ws"); //修改：服务器IP：82.157.168.26:8085 我的IP：192.168.154.31
             ws.onopen = () => {
                 console.log("WebSocket 连接已建立");
             };
