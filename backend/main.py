@@ -1,9 +1,9 @@
 import sys
 import os
-
+import asyncio
 import cv2
 from starlette.responses import HTMLResponse
-from starlette.websockets import WebSocket
+import asyncio
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import threading
@@ -66,29 +66,31 @@ LOG_FILE = CURRENT_DIR / 'main_service.log'
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PICTURES_DIR = PROJECT_ROOT / "pictures"
 app.mount("/static/pictures", StaticFiles(directory=str(PICTURES_DIR)), name="pictures")
-FRONTEND_DIR = PROJECT_ROOT / "frontend"
-app.mount("/frontend", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
+# FRONTEND_DIR = PROJECT_ROOT / "frontend"
+# app.mount("/frontend", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
 app.mount("/static/pictures", StaticFiles(directory=str(PICTURES_DIR)), name="pictures")
 
 # uvicorn main:app --port 63342 --reload
-@app.get("/")
-async def get():
-    index_path = FRONTEND_DIR / "index.html"
-    if not index_path.exists():
-        raise HTTPException(status_code=404, detail="index.html 不存在")
-    return HTMLResponse(index_path.read_text(encoding="utf-8"))
+# @app.get("/")
+# async def get():
+#     index_path = FRONTEND_DIR / "index.html"
+#     if not index_path.exists():
+#         raise HTTPException(status_code=404, detail="index.html 不存在")
+#     return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     print("WebSocket 请求接收中...")
     await websocket.accept()
     print("WebSocket 连接已建立")
+    asyncio.create_task(run_algorithm(frame_queue, websocket))
+
     while True:
         try:
             data = await websocket.receive_bytes()
             # print(f"收到视频帧，大小: {len(data)} 字节")
-            nparr = np.frombuffer(data, np.uint8)
-            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            np_arr = np.frombuffer(data, np.uint8)
+            frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
             if frame_queue.full():
                 frame_queue.get()  # 丢掉旧帧
@@ -195,12 +197,10 @@ def main():
             api_future = executor.submit(run_api_server)
 
             print("\n所有服务已启动！")
-            print("前端页面可以通过以下方式访问：")
             print("1. 浏览器直接打开 frontend/index.html")
             print("2. 访问 http://localhost:8085/frontend/index.html")
             print("3. 访问 http://localhost:8085/ (自动重定向)")
             print("API文档：http://localhost:8085/docs")
-            print("按Ctrl+C停止所有服务\n")
 
             # 等待服务完成（通常不会自然完成，除非出错）
             backend_future.result()
