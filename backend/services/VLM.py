@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sys
 import ssl
@@ -45,23 +46,23 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
-# DB_CONFIG = {
-#     "host": "localhost",
-#     "port": 3306,
-#     "user": "root",
-#     "password": "Qiu817527@",
-#     "database": "nonmotor",
-#     "charset": "utf8mb4"
-# }
-# 服务器的数据库配置
 DB_CONFIG = {
     "host": "localhost",
     "port": 3306,
-    "user": "zhq",
-    "password": "zhq",
+    "user": "root",
+    "password": "Qiu817527@",
     "database": "nonmotor",
     "charset": "utf8mb4"
 }
+# 服务器的数据库配置
+# DB_CONFIG = {
+#     "host": "localhost",
+#     "port": 3306,
+#     "user": "zhq",
+#     "password": "zhq",
+#     "database": "nonmotor",
+#     "charset": "utf8mb4"
+# }
 def init_db():
     """初始化数据库连接"""
     try :
@@ -100,6 +101,32 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 # 配置 requests 会话
 session = requests.Session()
 session.verify = False
+
+def get_total_records():
+    total = 0
+    try:
+        conn = init_db()
+        with conn.cursor() as cursor:
+            cursor.execute(f"SELECT COUNT(*) as count FROM `non_motor_vehicle`")
+            result = cursor.fetchone()
+        if result:
+            total += result[0]
+            print(f"[后端] 当前统计到的 track_id 数量：{total}")
+        else:
+            total = 0
+            print("Error in get_total_track_ids:", e)
+    except Exception as e:
+        print("Error:", e)
+    return total
+
+def get_violation_records():
+    total_count = get_total_records()
+    current_time = datetime.now().strftime("%H:%M:%S")
+    return [{
+        "time": current_time,
+        "count": total_count
+    }]
+
 
 def get_unprocessed_images():
     """获取未处理的图片记录"""

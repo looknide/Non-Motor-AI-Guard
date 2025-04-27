@@ -26,6 +26,7 @@ def init_db():
         print(f"数据库连接失败: {str(e)}")
         return False
 
+
 class NonMotorVehicle(Model):
     track_id = IntegerField(primary_key=True)  # 使用算法生成的UUID
     image_path = TextField(default=datetime.now)

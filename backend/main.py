@@ -3,6 +3,8 @@ import os
 import cv2
 import asyncio
 
+from backend.services import VLM
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import threading
 import time
@@ -11,14 +13,12 @@ from pathlib import Path
 import signal
 import numpy as np
 from datetime import datetime
-from run_algorithm import frame_queue
-
-from run_algorithm import run_algorithm
+from run_algorithm import frame_queue,run_algorithm
 
 # 添加项目根目录到Python路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket,Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -27,8 +27,6 @@ from concurrent.futures import ThreadPoolExecutor
 from backend.services.log_processor import start_log_processor, init_database
 from backend.services.VLM import start_monitoring, verify_api_key
 
-app = FastAPI()
-
 app = FastAPI(
     title="非机动车违停监控系统API",
     description="提供非机动车违停数据查询接口",
@@ -36,6 +34,7 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["*"],  # 可改为 前端["http://localhost:63342"] 或部署地址
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -67,12 +66,6 @@ app.mount("/static/pictures", StaticFiles(directory=str(PICTURES_DIR)), name="pi
 app.mount("/static/pictures", StaticFiles(directory=str(PICTURES_DIR)), name="pictures")
 
 # uvicorn main:app --port 63342 --reload
-# @app.get("/")
-# async def get():
-#     index_path = FRONTEND_DIR / "index.html"
-#     if not index_path.exists():
-#         raise HTTPException(status_code=404, detail="index.html 不存在")
-#     return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -95,6 +88,28 @@ async def websocket_endpoint(websocket: WebSocket):
         except Exception as e:
             print(f"WebSocket接收错误: {e}，断开连接")
             break
+
+
+@app.get("/api/violations")
+def api_violations(request: Request):
+    print("Request origin:", request.headers.get('origin'))
+    try:
+        violation_data = VLM.get_violation_records()
+        response_data = {
+            "status": "success",
+            "data": violation_data
+        }
+        print(f"[后端] 返回数据: {violation_data}")
+        return response_data
+    except Exception as e:
+        # 如果发生异常，返回错误信息
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+
+
 
 # 配置日志
 logging.basicConfig(
@@ -193,10 +208,6 @@ def main():
             api_future = executor.submit(run_api_server)
 
             print("\n所有服务已启动！")
-            print("1. 浏览器直接打开 frontend/index.html")
-            print("2. 访问 http://localhost:8085/frontend/index.html")
-            print("3. 访问 http://localhost:8085/ (自动重定向)")
-            print("API文档：http://localhost:8085/docs")
 
             # 等待服务完成（通常不会自然完成，除非出错）
             backend_future.result()

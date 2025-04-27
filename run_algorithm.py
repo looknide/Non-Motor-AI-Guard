@@ -2,18 +2,10 @@
 import base64
 import asyncio
 import cv2
-
 from queue import Queue
 frame_queue = Queue(maxsize=20)
-from tracker.detector import Detector
-from tracker.tracker import Tracker
-from tracker.processor import FrameProcessor
-from utils.file_utils import clean_old_images
 from queue import Empty
-import time
 from datetime import datetime
-
-
 import asyncio
 import cv2
 import base64
