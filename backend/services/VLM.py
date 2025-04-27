@@ -46,23 +46,23 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
-DB_CONFIG = {
-    "host": "localhost",
-    "port": 3306,
-    "user": "root",
-    "password": "Qiu817527@",
-    "database": "nonmotor",
-    "charset": "utf8mb4"
-}
-# 服务器的数据库配置
 # DB_CONFIG = {
 #     "host": "localhost",
 #     "port": 3306,
-#     "user": "zhq",
-#     "password": "zhq",
+#     "user": "root",
+#     "password": "Qiu817527@",
 #     "database": "nonmotor",
 #     "charset": "utf8mb4"
 # }
+# 服务器的数据库配置
+DB_CONFIG = {
+    "host": "localhost",
+    "port": 3306,
+    "user": "zhq",
+    "password": "zhq",
+    "database": "nonmotor",
+    "charset": "utf8mb4"
+}
 def init_db():
     """初始化数据库连接"""
     try :

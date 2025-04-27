@@ -7,10 +7,18 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # 使用MySQL配置
+# db = MySQLDatabase(
+#     'nonmotor',  # 数据库名称
+#     user='root',  # MySQL用户名
+#     password='Qiu817527@',  # MySQL密码
+#     host='localhost',  # 本地主机
+#     port=3306,  # MySQL默认端口
+#     charset='utf8mb4'  # 使用utf8mb4字符集
+# )
 db = MySQLDatabase(
     'nonmotor',  # 数据库名称
-    user='root',  # MySQL用户名
-    password='Qiu817527@',  # MySQL密码
+    user='zhq',  # MySQL用户名
+    password='zhq',  # MySQL密码
     host='localhost',  # 本地主机
     port=3306,  # MySQL默认端口
     charset='utf8mb4'  # 使用utf8mb4字符集
